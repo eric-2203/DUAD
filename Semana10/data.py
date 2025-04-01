@@ -3,7 +3,7 @@ import actions
 
 
 def write_csv_file(students_data, data):
-    with open('students_information.csv', mode='w', newline='', encoding='utf-8') as file:
+    with open('students_information.csv', mode='a', newline='', encoding='utf-8') as file:
         writer  = csv.writer(file)
 
         writer.writerow(["Name", "Section", "Spanish Score", "English Score", "Socials Score", "Science Score"])
