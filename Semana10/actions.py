@@ -13,16 +13,12 @@ def get_score(str):
             get_score(str)
         return score
 
-
+details = []
+average = []
+all_scores = []
 
 def get_info():
-    global students_average_score
-    global details
-    global average
-    global all_scores
-    average = []
-    details = []
-    all_scores = []
+    global students_average_score    
     print("Enter student information")
 
     while True: 
