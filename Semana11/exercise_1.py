@@ -1,10 +1,15 @@
+import math
+
 class Circle:
-    print("We will calculate the circle area.")
-    radius = int(input("Input the circle radius: "))
+    def __init__(self, radius):
+        self.radius = radius
+        
+        
 
-    def get_area(self, radius):
-        self.area = (radius ** 2) * 3.14
-        print(f"The circle area is: {self.area}")
 
-result = Circle()
-result.get_area(Circle.radius)
+    def get_area(self):
+        area = (self.radius ** 2) * math.pi
+        return area
+
+my_circle = Circle(21)
+my_circle.get_area()
