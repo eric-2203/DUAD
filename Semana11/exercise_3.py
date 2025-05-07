@@ -8,51 +8,31 @@ class Student():
         self.english = score2
         self.science = score3
         self.socials = score4
+        self.details = self.name, self.section, self.spanish, self.english, self.science, self.socials
+        self.average = (self.spanish + self.english + self.science + self.socials)/4
+        
 
-def create_student():
-    while True:
-        name = input("Enter the student name: ")
-        section = input("Enter the section: ")
-        spanish_score = int(input("Enter Spanish score: "))
-        english_score = int(input("Enter English score: "))
-        science_score = int(input("Enter Science score: "))
-        socials_score = int(input("Enter Socials score: "))
-        student_info = [name, section, spanish_score, english_score, science_score, socials_score]
-        students_list.append(student_info)
-        more_info = input("Do you want to add more students information? (yes/no): ")
-        if more_info.lower() != 'yes':
-            break
-    return name, section, spanish_score, english_score, science_score, socials_score
+    def show_details(self):
+        print(f"Student's name: {self.name}, Section: {self.section}, Spanish Score: {self.spanish}, English Score: {self.english}, Science Score: {self.science}, Socials Score: {self.socials}")
+
+    def get_average(self):
+        self.average = (self.spanish + self.english + self.science + self.socials) / 4
+        print(f"Average score: {self.average}")
+
+name = input("Student name: ")
+section = input("Section: ")
+spanish_score = int(input("Spanish Score: "))
+english_score = int(input("English Score: "))
+science_score = int(input("Science Score: "))
+socials_score = int(input("Socials Score: "))
 
 students_list = []
-data_student = create_student()
+while True:
+    students = Student(name, section, spanish_score, english_score, science_score, socials_score)
+    students_list.append(students)
+    more_info = input("Do you want to add more students information? (yes/no): ")
+    if more_info.lower() != 'yes':
+        break
 
-def show_details():
-    print(students_list)
 
-def write_csv_file(students_data, data):
-    with open('students_information.csv', mode='w', newline='', encoding='utf-8') as file:
-        writer  = csv.writer(file)
-
-        writer.writerow(["Name", "Section", "Spanish Score", "English Score", "Socials Score", "Science Score"])
-
-        writer.writerows(data)
-
-def write_file():
-    students_data = students_list
-    write_csv_file('students_information.csv', students_data)
-
-def read_file():
-    try: 
-        with open('students_information.csv', 'r') as file:
-            reader = csv.reader(file)
-
-            for row in reader:
-                print(row)
-    except FileNotFoundError:
-        print("A CSV file has not been exported yet. Create a CSV file first.")
-
-students = Student(data_student[0], [1], [2], [3], [4], [5])
-show_details()
-write_file()
-read_file()
+students.show_details()
