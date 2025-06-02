@@ -22,8 +22,8 @@ class Student():
 
 def get_student_info():
     global details
+    #global all_scores
     global average
-    global all_scores
     
     average = []
     all_scores = []
@@ -51,29 +51,72 @@ def get_student_info():
     return Student
 
 
+
+
 def register_student():
-    global students
     students = []
 
     while True:
         student = get_student_info()
         students.append(details)
 
-        
+
         more_info = input("Do you want to add more students information? (yes/no): ")
         if more_info.lower() != 'yes':
             break
         
+        
     return students
 
-def show_top_3():
-    sorted_average = sorted(average, key=lambda scores: scores[1], reverse=True)
+
+def show_top_3(n):
+    #average_scores = []
+    ranking=[]
+    for lists in n:
+        average1= (lists[2]+ lists[3]+ lists[4]+lists[5])/4
+        names = (lists[0])
+        #average_scores.append(names)
+        #average_scores.append(average1)
+        ranking.append([names, average1])
+        
+
+    sorted_average = sorted(ranking, key=lambda scores: scores[1], reverse=True)
     top_3 = sorted_average[:3]
+    
 
     print(f'These are the top 3 students with their average score: {top_3}')
 
+def show_students(lst):
+    print(lst)
+
+    
+def show_global_scores(score):
+    scores = []
+    for lists in score:
+        all_scores_average = (lists[2]+ lists[3]+ lists[4]+ lists[5])/4
+        scores.append(all_scores_average)
+        global_average = sum(scores)/len(scores)
+
+    print(f"This is the global average: {global_average}")
 
 
-register_student()
-print(students)
-show_top_3()
+def write_csv_file(students_data, data):
+    with open('students_information.csv', mode='w', newline='', encoding='utf-8') as file:
+        writer  = csv.writer(file)
+
+        writer.writerow(["Name", "Section", "Spanish Score", "English Score", "Socials Score", "Science Score"])
+
+        writer.writerows(data)
+
+
+def write_file():
+    students_data = students_list
+    write_csv_file('students_information.csv', students_data)
+
+
+students_list = register_student()
+#print(students_list)
+show_students(students_list)
+show_top_3(students_list)
+show_global_scores(students_list)
+write_file()
