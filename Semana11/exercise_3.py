@@ -8,8 +8,6 @@ class Student():
         self.english = score2
         self.science = score3
         self.socials = score4
-        self.details = self.name, self.section, self.spanish, self.english, self.science, self.socials
-        self.average = (self.spanish + self.english + self.science + self.socials)/4
         
 
     def show_details(self):
@@ -21,34 +19,17 @@ class Student():
 
 
 def get_student_info():
-    global details
-    #global all_scores
-    global average
-    
-    average = []
-    all_scores = []
 
     name = input("Student name: ")
     section = input("Section: ")
-    spanish_score = int(input("Spanish Score: "))
-    english_score = int(input("English Score: "))
-    science_score = int(input("Science Score: "))
-    socials_score = int(input("Socials Score: "))
-    details = [name, section, spanish_score, english_score, science_score, socials_score]
-    average_scores = (spanish_score + english_score + science_score + socials_score)/4
+    spanish = int(input("Spanish Score: "))
+    english = int(input("English Score: "))
+    science = int(input("Science Score: "))
+    socials = int(input("Socials Score: "))
 
-    top_students = average_scores
+    student_details = Student(name, section, spanish, english, science, socials)
 
-    all_scores.append(spanish_score)
-    all_scores.append(english_score)
-    all_scores.append(science_score)
-    all_scores.append(socials_score)
-
-    ranking = [name, top_students]
-    average.append(ranking)
-
-
-    return Student
+    return student_details
 
 
 
@@ -57,8 +38,8 @@ def register_student():
     students = []
 
     while True:
-        student = get_student_info()
-        students.append(details)
+        new_student = get_student_info()
+        students.append(new_student)
 
 
         more_info = input("Do you want to add more students information? (yes/no): ")
@@ -73,8 +54,8 @@ def show_top_3(n):
     #average_scores = []
     ranking=[]
     for lists in n:
-        average1= (lists[2]+ lists[3]+ lists[4]+lists[5])/4
-        names = (lists[0])
+        average1= (lists.spanish + lists.english + lists.science + lists.socials)/4
+        names = (lists.name)
         #average_scores.append(names)
         #average_scores.append(average1)
         ranking.append([names, average1])
@@ -87,13 +68,18 @@ def show_top_3(n):
     print(f'These are the top 3 students with their average score: {top_3}')
 
 def show_students(lst):
-    print(lst)
+    information = []
+    for lists in lst:
+        information.append([lists.name, lists.section, lists.spanish, lists.english, lists.science, lists.socials])
+        
+    return information
+
 
     
 def show_global_scores(score):
     scores = []
     for lists in score:
-        all_scores_average = (lists[2]+ lists[3]+ lists[4]+ lists[5])/4
+        all_scores_average = (lists.spanish+ lists.english+ lists.science+ lists.socials)/4
         scores.append(all_scores_average)
         global_average = sum(scores)/len(scores)
 
@@ -110,13 +96,25 @@ def write_csv_file(students_data, data):
 
 
 def write_file():
-    students_data = students_list
+    students_data = show_students(students_list)
     write_csv_file('students_information.csv', students_data)
 
 
-students_list = register_student()
-#print(students_list)
-show_students(students_list)
-show_top_3(students_list)
-show_global_scores(students_list)
-write_file()
+def read_file():
+    try: 
+        with open('students_information.csv', 'r') as file:
+            reader = csv.reader(file)
+
+            for row in reader:
+                print(row)
+    except FileNotFoundError:
+        print("A CSV file has not been exported yet. Create a CSV file first.")
+
+
+#students_list = register_student()
+#print(show_students(students_list))
+#show_top_3(students_list)
+#show_global_scores(students_list)
+#write_file()
+
+read_file()
