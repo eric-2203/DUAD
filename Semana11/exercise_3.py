@@ -51,13 +51,10 @@ def register_student():
 
 
 def show_top_3(n):
-    #average_scores = []
     ranking=[]
     for lists in n:
         average1= (lists.spanish + lists.english + lists.science + lists.socials)/4
         names = (lists.name)
-        #average_scores.append(names)
-        #average_scores.append(average1)
         ranking.append([names, average1])
         
 
@@ -90,31 +87,41 @@ def write_csv_file(students_data, data):
     with open('students_information.csv', mode='w', newline='', encoding='utf-8') as file:
         writer  = csv.writer(file)
 
-        writer.writerow(["Name", "Section", "Spanish Score", "English Score", "Socials Score", "Science Score"])
+        writer.writerow(["Name", "Section", "Spanish Score", "English Score", "Science Score", "Socials Score"])
 
         writer.writerows(data)
 
 
-def write_file():
-    students_data = show_students(students_list)
+def write_file(info):
+    students_data = info
     write_csv_file('students_information.csv', students_data)
 
 
-def read_file():
+def read_file(filename):
+    object_students = []
     try: 
         with open('students_information.csv', 'r') as file:
-            reader = csv.reader(file)
+            reader = csv.DictReader(file)
 
             for row in reader:
-                print(row)
+                student = Student(row["Name"], row["Section"], row["Spanish Score"], row["English Score"], row["Science Score"], row["Socials Score"])
+                object_students.append(student)
+                #print(row)
     except FileNotFoundError:
         print("A CSV file has not been exported yet. Create a CSV file first.")
 
+    return object_students
 
+def read_students_entered_information(det):
+    for student in det:
+        print(f"Student name: {student.name}, Section: {student.section}, Spanish Score: {student.spanish}, English Score: {student.english}, Science Score: {student.science}, Socials Score: {student.socials}")
+
+existing_students = read_file("students_information.csv")
 #students_list = register_student()
+#student_info = show_students(students_list)
 #print(show_students(students_list))
 #show_top_3(students_list)
 #show_global_scores(students_list)
-#write_file()
+#write_file(student_info)
 
-read_file()
+read_students_entered_information(existing_students)
