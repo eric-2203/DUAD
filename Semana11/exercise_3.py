@@ -104,7 +104,7 @@ def read_file(filename):
             reader = csv.DictReader(file)
 
             for row in reader:
-                student = Student(row["Name"], row["Section"], row["Spanish Score"], row["English Score"], row["Science Score"], row["Socials Score"])
+                student = Student(row["Name"], row["Section"], int(row["Spanish Score"]), int(row["English Score"]), int(row["Science Score"]), int(row["Socials Score"]))
                 object_students.append(student)
                 #print(row)
     except FileNotFoundError:
@@ -116,12 +116,12 @@ def read_students_entered_information(det):
     for student in det:
         print(f"Student name: {student.name}, Section: {student.section}, Spanish Score: {student.spanish}, English Score: {student.english}, Science Score: {student.science}, Socials Score: {student.socials}")
 
-existing_students = read_file("students_information.csv")
-#students_list = register_student()
-#student_info = show_students(students_list)
-#print(show_students(students_list))
-#show_top_3(students_list)
-#show_global_scores(students_list)
-#write_file(student_info)
+#existing_students = read_file("students_information.csv")
+students_list = register_student()
+student_info = show_students(students_list)
+print(show_students(students_list))
+show_top_3(students_list)
+show_global_scores(students_list)
+write_file(student_info)
 
-read_students_entered_information(existing_students)
+#read_students_entered_information(existing_students)
