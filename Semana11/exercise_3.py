@@ -10,12 +10,12 @@ class Student():
         self.socials = score4
         
 
-    def show_details(self):
-        print(f"Student's name: {self.name}, Section: {self.section}, Spanish Score: {self.spanish}, English Score: {self.english}, Science Score: {self.science}, Socials Score: {self.socials}")
+    #def show_details(self):
+        #print(f"Student's name: {self.name}, Section: {self.section}, Spanish Score: {self.spanish}, English Score: {self.english}, Science Score: {self.science}, Socials Score: {self.socials}")
 
-    def get_average(self):
-        self.average = (self.spanish + self.english + self.science + self.socials) / 4
-        print(f"Average score: {self.average}")
+    #def get_average(self):
+        #self.average = (self.spanish + self.english + self.science + self.socials) / 4
+        #print(f"Average score: {self.average}")
 
 
 def get_student_info():
@@ -116,12 +116,12 @@ def read_students_entered_information(det):
     for student in det:
         print(f"Student name: {student.name}, Section: {student.section}, Spanish Score: {student.spanish}, English Score: {student.english}, Science Score: {student.science}, Socials Score: {student.socials}")
 
-#existing_students = read_file("students_information.csv")
-students_list = register_student()
-student_info = show_students(students_list)
-print(show_students(students_list))
-show_top_3(students_list)
-show_global_scores(students_list)
-write_file(student_info)
+existing_students = read_file("students_information.csv")
+#students_list = register_student()
+#student_info = show_students(students_list)
+#print(show_students(students_list))
+#show_top_3(students_list)
+#show_global_scores(students_list)
+#write_file(student_info)
 
-#read_students_entered_information(existing_students)
+read_students_entered_information(existing_students)
