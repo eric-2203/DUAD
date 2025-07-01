@@ -3,10 +3,9 @@ class Head:
         pass
 
 class Torso:
-    def __init__(self, head, right_arm, left_arm):
+    def __init__(self, right_arm, left_arm):
         self.right_arm = right_arm
         self.left_arm = left_arm
-        self.head = head
 
 class Arms:
     def __init__(self, right_hand, left_hand):

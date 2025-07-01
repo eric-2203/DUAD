@@ -9,7 +9,7 @@ class Circle:
 
     def get_area(self):
         area = (self.radius ** 2) * math.pi
-        return area
+        print(area)
 
 my_circle = Circle(21)
 my_circle.get_area()
