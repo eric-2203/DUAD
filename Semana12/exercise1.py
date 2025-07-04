@@ -40,9 +40,6 @@ class BankAccount:
 
 
 
-
-
-
 class SavingsAccount(BankAccount):
     def __init__(self, balance, min_balance):
         self.min_balance = min_balance
