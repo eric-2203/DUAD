@@ -22,7 +22,7 @@ def check_age(func):
     return wrapper
 
 eric = User(date(1994, 3, 22))
-
+juan = User(date(2010, 7, 13))
 
 @check_age
 def buy_alcohol(user, product):
