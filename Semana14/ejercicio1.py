@@ -18,7 +18,10 @@ class Stack:
         self.head = node
 
     def pop(self):
-        self.head = self.head.next
+        if self.head == None:
+            print("Stack is Empty")
+        else:
+            self.head = self.head.next
 
     def print_info(self):
         current_node = self.head
@@ -39,3 +42,17 @@ print("--- Performing a Pop ---")
 my_stack.pop()
 
 my_stack.print_info()
+
+print("--- Performing a Pop ---")
+
+my_stack.pop()
+
+my_stack.print_info()
+
+print("--- Performing a Pop ---")
+
+my_stack.pop()
+
+my_stack.print_info()
+
+my_stack.pop()
