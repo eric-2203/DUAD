@@ -18,10 +18,20 @@ class Stack:
         self.head = node
 
     def pop(self):
-        if self.head == None:
-            print("Stack is Empty")
-        else:
+        try:
             self.head = self.head.next
+            
+            
+        except IndexError:
+            print("Stack is empty.")
+
+    def is_empty(self):
+        try: 
+            if self.head is None:
+                raise IndexError
+        except IndexError:
+            print("Stack is empty.")
+            
 
     def print_info(self):
         current_node = self.head
@@ -31,28 +41,17 @@ class Stack:
 
 
 my_stack = Stack()
+
 my_stack.push("First node")
-my_stack.push("Second node")
-my_stack.push("Third node")
+
+my_stack.is_empty()
 
 my_stack.print_info()
 
-print("--- Performing a Pop ---")
+print("---Performing a Pop---")
 
 my_stack.pop()
 
 my_stack.print_info()
 
-print("--- Performing a Pop ---")
-
-my_stack.pop()
-
-my_stack.print_info()
-
-print("--- Performing a Pop ---")
-
-my_stack.pop()
-
-my_stack.print_info()
-
-my_stack.pop()
+my_stack.is_empty()
