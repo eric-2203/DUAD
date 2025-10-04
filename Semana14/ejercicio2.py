@@ -70,5 +70,29 @@ class Deque:
 
 
 my_deque = Deque()
+my_deque.push_left("First node")
+my_deque.push_left("Second node")
+my_deque.push_right("pre-last node")
+my_deque.push_right("Last node")
+my_deque.push_right("New node")
 
-my_deque.is_empty()
+my_deque.print_info()
+
+print("--- Performing a Pop ---")
+
+my_deque.pop_left()
+
+
+my_deque.print_info()
+
+print("--- Performing a Pop ---")
+
+my_deque.pop_right()
+
+my_deque.print_info()
+
+print("--- Performing a Pop ---")
+
+my_deque.pop_right()
+
+my_deque.print_info()
