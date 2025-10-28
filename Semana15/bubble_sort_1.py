@@ -1,6 +1,7 @@
 def bubble_sort(list_to_sort):
     for outer_index in range(0, len(list_to_sort)):
-        for index in range(0, len(list_to_sort) -1):
+        changes_made = False
+        for index in range(0, len(list_to_sort) -1 - outer_index):
             current_element = list_to_sort[index]
             next_element = list_to_sort[index +1]
             
@@ -10,9 +11,11 @@ def bubble_sort(list_to_sort):
             if current_element > next_element:
                 list_to_sort[index] = next_element
                 list_to_sort[index +1] = current_element
+                changes_made = True
 
-
-test_list = [10, 8, 5, 4, 3]
+        if not changes_made:
+            return
+test_list = [3, 4, 5, 6, 8, 7]
 
 bubble_sort(test_list)
 
