@@ -26,3 +26,19 @@ def generate_list_trios(list_a, list_b, list_c):  #La complejidad sería O(a*b*c
 				result_list.append(f'{element_a} {element_b} {element_c}')  # O(1)
 				
 	return result_list   # O(1)
+
+def is_valid(x):  # La complejidad seria de O(n)
+    return x > 10 and x % 3 == 0  # O(1)
+
+def count_valid_elements(numbers):
+    count = 0
+    for num in numbers:  # O(n)
+        if is_valid(num): # O(1)
+            count += 1  # O(1)
+    return count  # O(1)
+
+
+
+
+
+
