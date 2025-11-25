@@ -1,0 +1,125 @@
+import FreeSimpleGUI as sg
+import logic as func
+from datetime import datetime
+
+manager = func.FinanceManager()
+
+def add_category_window():
+    layout = [
+        [sg.Text("Nombre")], [sg.Input(key="nombre_categoria")],
+        [sg.Text("Tipo")], [sg.Combo(["Ingreso", "Gasto"], key="tipo_categoria")],
+        [sg.Button("Agregar"), sg.Button("Cerrar")]
+    ]
+
+    window = sg.Window("Add Category" , layout)
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cerrar":
+            break
+
+        if event == "Agregar":
+            name = values["nombre_categoria"]
+            type = values["tipo_categoria"]
+
+            new_category = func.Category(name, type)
+            manager.add_categories(new_category)
+            sg.popup("Categoria agregada con exito!")
+            window.close()
+            
+
+    window.close()
+
+
+def add_movement_window():
+    layout = [
+        [sg.Text("Descripcion del gasto")], [sg.Input(key="descripcion")],
+        [sg.Text("Monto")], [sg.Input(key="monto")],
+        [sg.Text("Fecha")], [sg.Input(key="fecha", default_text="DD-MM-YYYY")],
+        [sg.Text("Tipo")], [sg.Combo(["Ingreso", "Gasto"], key="tipo")],
+        [sg.Text("Categoria")], [sg.Combo([cat.name for cat in manager.categories], key="categoria")],
+        [sg.Button("Agregar"), sg.Button("Cerrar")],
+        
+    ]
+
+    window = sg.Window("Add Movement" , layout)
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cerrar":
+            break
+        
+        if event == "Agregar":
+            amount = values["monto"]
+            movement_type  = values["tipo"]
+            category_name  = values["categoria"]
+            description = values["descripcion"]
+            entered_date = values["fecha"]
+
+            if not amount or not movement_type or not category_name or not description or not entered_date:
+                sg.popup_error("Todos los campos son obligatorios.")
+
+            else:
+                try:
+                    amount = float(amount)
+                    if amount <= 0:
+                        raise ValueError("El monto debe de ser un monto positivo.")
+                    
+                    category = None
+                    for cat in manager.categories:
+                        if cat.name == category_name:
+                            category = cat
+                            break
+                    if not category:
+                        sg.popup_error("Categoria invalida.")
+                        return
+                    
+
+                    datetime.strptime(entered_date, "%d-%m-%Y")
+
+                    movement = func.Movement(category, amount, entered_date, description)
+                    manager.add_movements(movement)
+                    sg.popup("Movimiento agregado de manera exitosa.")
+                    window.close()
+                except ValueError as error:
+                    sg.popup_error(f"Hay algun error en los datos ingresados: {error}")
+
+    window.close()
+
+
+def show_movements_window():
+    layout = [
+        [sg.Text("Todos los Movimientos")],
+        [sg.Table],
+    ]
+
+    window = sg.Window("Show movements", layout)
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cerrar":
+            break
+
+def main_layout():
+    layout = [
+        [sg.Text("Bienvenido al Gestor de Finanzas Personales")],
+        [sg.Button("Agregar categoria"), sg.Button("Agregar Movimiento"), sg.Button("Mostrar movimientos")]
+    ]
+
+    window = sg.Window("First program" , layout)
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cerrar":
+            break
+        elif event == "Agregar categoria":
+            add_category_window()
+        elif event == "Agregar Movimiento":
+            add_movement_window()
+        elif event == "Mostrar movimientos":
+            show_movements_window()
+
+    window.close()
+
+
+main_layout()
