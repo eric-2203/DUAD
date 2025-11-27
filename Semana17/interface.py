@@ -22,10 +22,14 @@ def add_category_window():
             name = values["nombre_categoria"]
             type = values["tipo_categoria"]
 
-            new_category = func.Category(name, type)
-            manager.add_categories(new_category)
-            sg.popup("Categoria agregada con exito!")
-            window.close()
+            if not name or not type:
+                sg.popup_error("Todos los campos son obligatorios")
+
+            else: 
+                new_category = func.Category(name, type)
+                manager.add_categories(new_category)
+                sg.popup("Categoria agregada con exito!")
+                window.close()
             
 
     window.close()
@@ -81,6 +85,7 @@ def add_movement_window():
                     manager.add_movements(movement)
                     sg.popup("Movimiento agregado de manera exitosa.")
                     window.close()
+                    #show_movements_window()
                 except ValueError as error:
                     sg.popup_error(f"Hay algun error en los datos ingresados: {error}")
 
@@ -88,9 +93,12 @@ def add_movement_window():
 
 
 def show_movements_window():
+    headers = ["Categoria", "Monto", "Fecha", "Descripcion"]
+    data = manager.get_data_in_lists()
     layout = [
         [sg.Text("Todos los Movimientos")],
-        [sg.Table],
+        [sg.Table(headings=headers, values=data, key="tabla_movimientos")],
+        [sg.Button("Refrescar"), sg.Button("Cerrar")],
     ]
 
     window = sg.Window("Show movements", layout)
@@ -99,23 +107,30 @@ def show_movements_window():
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == "Cerrar":
             break
+        elif event == "Refrrescar":
+            window["tabla_movimientos"].update(values=manager.get_data_in_lists())
+
+    window.close()
 
 def main_layout():
     layout = [
         [sg.Text("Bienvenido al Gestor de Finanzas Personales")],
-        [sg.Button("Agregar categoria"), sg.Button("Agregar Movimiento"), sg.Button("Mostrar movimientos")]
+        [sg.Text(f"El balance en la cuenta es de: {manager.calculate_balance()}", key="account_balance")],
+        [sg.Button("Agregar categoria"), sg.Button("Agregar Movimiento"), sg.Button("Mostrar movimientos")],
+        [sg.Button("Cerrar Programa")]
     ]
 
     window = sg.Window("First program" , layout)
 
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == "Cerrar":
+        if event == sg.WIN_CLOSED or event == "Cerrar Programa":
             break
         elif event == "Agregar categoria":
             add_category_window()
         elif event == "Agregar Movimiento":
             add_movement_window()
+            window["account_balance"].update(f"El balance de la cuenta es de: {manager.calculate_balance()}")
         elif event == "Mostrar movimientos":
             show_movements_window()
 

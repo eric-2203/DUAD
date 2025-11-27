@@ -41,6 +41,14 @@ class FinanceManager():
         for mov in self.movements:
             print(mov.show_details())
 
+    def get_data_in_lists(self):
+        trans_details = []
+        for mov in self.movements:
+            data = [mov.category.name, mov.amount, mov.date, mov.description]
+            trans_details.append(data)
+
+        return trans_details
+
     def calculate_balance(self):
         balance = 0
         for trans in self.movements:
