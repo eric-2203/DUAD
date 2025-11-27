@@ -37,10 +37,9 @@ def add_category_window():
 
 def add_movement_window():
     layout = [
-        [sg.Text("Descripcion del gasto")], [sg.Input(key="descripcion")],
+        [sg.Text("Descripcion del movimiento")], [sg.Input(key="descripcion")],
         [sg.Text("Monto")], [sg.Input(key="monto")],
         [sg.Text("Fecha")], [sg.Input(key="fecha", default_text="DD-MM-YYYY")],
-        [sg.Text("Tipo")], [sg.Combo(["Ingreso", "Gasto"], key="tipo")],
         [sg.Text("Categoria")], [sg.Combo([cat.name for cat in manager.categories], key="categoria")],
         [sg.Button("Agregar"), sg.Button("Cerrar")],
         
@@ -55,12 +54,11 @@ def add_movement_window():
         
         if event == "Agregar":
             amount = values["monto"]
-            movement_type  = values["tipo"]
             category_name  = values["categoria"]
             description = values["descripcion"]
             entered_date = values["fecha"]
 
-            if not amount or not movement_type or not category_name or not description or not entered_date:
+            if not amount or not category_name or not description or not entered_date:
                 sg.popup_error("Todos los campos son obligatorios.")
 
             else:
@@ -76,7 +74,7 @@ def add_movement_window():
                             break
                     if not category:
                         sg.popup_error("Categoria invalida.")
-                        return
+                        continue
                     
 
                     datetime.strptime(entered_date, "%d-%m-%Y")
@@ -125,6 +123,7 @@ def main_layout():
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == "Cerrar Programa":
+            sg.popup("Gracias por utilizar nuestro Gestor de Finanzas!")
             break
         elif event == "Agregar categoria":
             add_category_window()
