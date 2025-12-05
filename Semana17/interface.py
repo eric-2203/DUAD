@@ -1,6 +1,7 @@
 import FreeSimpleGUI as sg
 import logic as func
 from datetime import datetime
+import persistency as persist
 
 manager = func.FinanceManager()
 
@@ -91,7 +92,7 @@ def add_movement_window():
 
 
 def show_movements_window():
-    headers = ["Categoria", "Monto", "Fecha", "Descripcion"]
+    headers = ["Categoria", "Tipo", "Monto", "Fecha", "Descripcion"]
     data = manager.get_data_in_lists()
     layout = [
         [sg.Text("Todos los Movimientos")],
@@ -115,10 +116,12 @@ def main_layout():
         [sg.Text("Bienvenido al Gestor de Finanzas Personales")],
         [sg.Text(f"El balance en la cuenta es de: {manager.calculate_balance()}", key="account_balance")],
         [sg.Button("Agregar categoria"), sg.Button("Agregar Movimiento"), sg.Button("Mostrar movimientos")],
-        [sg.Button("Cerrar Programa")]
+        [sg.Button("Cerrar Programa"), sg.Button("Exportar a CSV")]
     ]
 
     window = sg.Window("First program" , layout)
+    
+    manager.read_data()
 
     while True:
         event, values = window.read()
@@ -132,6 +135,9 @@ def main_layout():
             window["account_balance"].update(f"El balance de la cuenta es de: {manager.calculate_balance()}")
         elif event == "Mostrar movimientos":
             show_movements_window()
+        elif event == "Exportar a CSV":
+            manager.export_data()
+            sg.popup("Archivo exportado a CSV de manera exitosa.")
 
     window.close()
 

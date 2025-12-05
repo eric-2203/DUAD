@@ -1,5 +1,6 @@
 # Crear toda la logica del programa para luego conectarla con la interfaz grafica.
-
+import persistency as pers
+import csv
 
 class Category():
     def __init__(self, name, type):
@@ -44,7 +45,7 @@ class FinanceManager():
     def get_data_in_lists(self):
         trans_details = []
         for mov in self.movements:
-            data = [mov.category.name, mov.amount, mov.date, mov.description]
+            data = [mov.category.name, mov.category.type, mov.amount, mov.date, mov.description]
             trans_details.append(data)
 
         return trans_details
@@ -58,15 +59,24 @@ class FinanceManager():
                 balance = balance - trans.amount
         return f"₡{balance}"
     
-cat = Category("Comida", "Gasto")
-cat2 = Category("Salario", "Ingreso")
-cat3 = Category("Salud", "Gasto")
+
+    def export_data(self):
+        pers.write_csv_file(self.get_data_in_lists())
+
+    def read_data(self):
+        self.movements = pers.read_file(Movement, Category)
+        
+
+    
+#cat = Category("Comida", "Gasto")
+#cat2 = Category("Salario", "Ingreso")
+#cat3 = Category("Salud", "Gasto")
 
 
-mov3 = Movement(cat2, 100000, "05/11/2025", "Salario")
-mov = Movement(cat, 1250, "11/11/2025", "Pizza")
-mov2 = Movement(cat, 5000, "10/11/2025", "Ceviche")
-mov4 = Movement(cat3, 24000, "19/11/2025", "Gym")
+#mov3 = Movement(cat2, 100000, "05/11/2025", "Salario")
+#mov = Movement(cat, 1250, "11/11/2025", "Pizza")
+#mov2 = Movement(cat, 5000, "10/11/2025", "Ceviche")
+#mov4 = Movement(cat3, 24000, "19/11/2025", "Gym")
 
 manager = FinanceManager()
 

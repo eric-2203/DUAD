@@ -1,18 +1,39 @@
 # Agregar la logica para guardar y cargar archivos CSV
 import csv
-import logic as func
+import os
 
-my_manager = func.FinanceManager()
-
-def write_csv_file(movements_data, data):
+def write_csv_file(movements_info):
     with open('movements_information.csv', mode='a', newline='', encoding='utf-8') as file:
         writer  = csv.writer(file)
+        
+        if os.path.getsize('movements_information.csv') == 0:
+            writer.writerow(["Categoria", "Tipo", "Monto", "Fecha", "Descripcion"])
+        
+        writer.writerows(movements_info)
 
-        writer.writerow(["Categoria", "Monto", "Fecha", "Descripcion"])
 
-        writer.writerows(data)
+def check_if_file_is_empty(file):
+    if file == 0:
+        True
+    elif file > 0:
+        False
 
 
-def write_file():
-    movements_data = my_manager.get_data_in_lists()
-    write_csv_file('students_information.csv', movements_data)
+def write_file(data):
+    write_csv_file(data)
+
+
+def read_file(movement_details, CategoryClass):
+    object_movements = []
+    try: 
+        with open('movements_information.csv', 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                movement = movement_details(CategoryClass(row["Categoria"], row["Tipo"]), int(row["Monto"]), row["Fecha"], row["Descripcion"])
+                object_movements.append(movement)
+                
+    except FileNotFoundError:
+        return []
+
+    return object_movements
