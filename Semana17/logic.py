@@ -28,6 +28,7 @@ class FinanceManager():
 
     def add_categories(self, new_category):
         self.categories.append(new_category)
+        return new_category
 
     def has_categories(self):
         return len(self.categories) > 0
@@ -57,7 +58,7 @@ class FinanceManager():
                 balance = balance + trans.amount
             elif trans.category.type == "Gasto":
                 balance = balance - trans.amount
-        return f"₡{balance}"
+        return balance
     
 
     def export_data(self):
@@ -65,6 +66,10 @@ class FinanceManager():
 
     def read_data(self):
         self.movements = pers.read_file(Movement, Category)
+
+    def get_categories(self):
+        self. categories = pers.get_categories_from_file(Category)
+        return self.categories
         
 
     

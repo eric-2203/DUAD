@@ -3,20 +3,13 @@ import csv
 import os
 
 def write_csv_file(movements_info):
-    with open('movements_information.csv', mode='a', newline='', encoding='utf-8') as file:
+    with open('movements_information.csv', mode='w', newline='', encoding='utf-8') as file:
         writer  = csv.writer(file)
         
-        if os.path.getsize('movements_information.csv') == 0:
-            writer.writerow(["Categoria", "Tipo", "Monto", "Fecha", "Descripcion"])
+        writer.writerow(["Categoria", "Tipo", "Monto", "Fecha", "Descripcion"])
         
         writer.writerows(movements_info)
 
-
-def check_if_file_is_empty(file):
-    if file == 0:
-        True
-    elif file > 0:
-        False
 
 
 def write_file(data):
@@ -37,3 +30,26 @@ def read_file(movement_details, CategoryClass):
         return []
 
     return object_movements
+
+
+def get_categories_from_file(CategoryClass):
+    unique_categories = set()
+    object_categories = []
+    try: 
+        with open('movements_information.csv', 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                name = row["Categoria"]
+                type = row["Tipo"]
+
+                unique_categories.add((name, type))
+        
+        for name, type in unique_categories:
+            object_categories.append(CategoryClass(name, type))
+
+                
+    except FileNotFoundError:
+        return []
+
+    return object_categories

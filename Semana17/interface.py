@@ -60,7 +60,7 @@ def add_movement_window():
             entered_date = values["fecha"]
 
             if not amount or not category_name or not description or not entered_date:
-                sg.popup_error("Todos los campos son obligatorios.")
+                sg.popup_error("Todos los campos son obligatorios. Si no hay categoría disponible, primero debe de agregar una.")
 
             else:
                 try:
@@ -96,7 +96,7 @@ def show_movements_window():
     data = manager.get_data_in_lists()
     layout = [
         [sg.Text("Todos los Movimientos")],
-        [sg.Table(headings=headers, values=data, key="tabla_movimientos")],
+        [sg.Table(headings=headers, justification="center",values=data, key="tabla_movimientos")],
         [sg.Button("Refrescar"), sg.Button("Cerrar")],
     ]
 
@@ -114,14 +114,17 @@ def show_movements_window():
 def main_layout():
     layout = [
         [sg.Text("Bienvenido al Gestor de Finanzas Personales")],
-        [sg.Text(f"El balance en la cuenta es de: {manager.calculate_balance()}", key="account_balance")],
+        [sg.Text(f"El balance en la cuenta es de: ₡{manager.calculate_balance()}", key="account_balance")],
         [sg.Button("Agregar categoria"), sg.Button("Agregar Movimiento"), sg.Button("Mostrar movimientos")],
         [sg.Button("Cerrar Programa"), sg.Button("Exportar a CSV")]
     ]
 
-    window = sg.Window("First program" , layout)
+    window = sg.Window("First program" , layout, finalize=True)
     
     manager.read_data()
+    manager.calculate_balance()
+    manager.get_categories()
+    window["account_balance"].update(f"El balance de la cuenta es de: ₡{manager.calculate_balance()}")
 
     while True:
         event, values = window.read()
@@ -132,7 +135,8 @@ def main_layout():
             add_category_window()
         elif event == "Agregar Movimiento":
             add_movement_window()
-            window["account_balance"].update(f"El balance de la cuenta es de: {manager.calculate_balance()}")
+            window["account_balance"].update(f"El balance de la cuenta es de: ₡{manager.calculate_balance()}")
+            manager.export_data()
         elif event == "Mostrar movimientos":
             show_movements_window()
         elif event == "Exportar a CSV":
