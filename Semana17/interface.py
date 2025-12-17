@@ -76,8 +76,12 @@ def add_movement_window():
                     if not category:
                         sg.popup_error("Categoria invalida.")
                         continue
-                    
 
+                    description = description.strip()
+                    if description == "":
+                        sg.popup_error("Descripcion invalida. La descripcion debe de contener informacion del ingreso o el gasto.")
+                        continue
+                    
                     datetime.strptime(entered_date, "%d-%m-%Y")
 
                     movement = func.Movement(category, amount, entered_date, description)
