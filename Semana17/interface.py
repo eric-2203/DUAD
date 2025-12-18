@@ -36,12 +36,12 @@ def add_category_window():
     window.close()
 
 
-def add_movement_window():
+def add_movement_window(cats):
     layout = [
         [sg.Text("Descripcion del movimiento")], [sg.Input(key="descripcion")],
         [sg.Text("Monto")], [sg.Input(key="monto")],
-        [sg.Text("Fecha")], [sg.Input(key="fecha", default_text="DD-MM-YYYY")],
-        [sg.Text("Categoria")], [sg.Combo([cat.name for cat in manager.categories], key="categoria")],
+        [sg.Text("Fecha")], [sg.Input(key="fecha"), [sg.CalendarButton("Seleccionar Fecha", target= "fecha", format="%d-%m-%Y")]],
+        [sg.Text("Categoria")], [sg.Combo([cat.name for cat in cats], key="categoria")],
         [sg.Button("Agregar"), sg.Button("Cerrar")],
         
     ]
@@ -68,7 +68,7 @@ def add_movement_window():
                     if amount <= 0:
                         raise ValueError("El monto debe de ser un monto positivo.")
                     
-                    category = None
+                    category = cats
                     for cat in manager.categories:
                         if cat.name == category_name:
                             category = cat
@@ -119,7 +119,7 @@ def main_layout():
     layout = [
         [sg.Text("Bienvenido al Gestor de Finanzas Personales")],
         [sg.Text(f"El balance en la cuenta es de: ₡{manager.calculate_balance()}", key="account_balance")],
-        [sg.Button("Agregar categoria"), sg.Button("Agregar Movimiento"), sg.Button("Mostrar movimientos")],
+        [sg.Button("Agregar categoria"), sg.Button("Agregar Ingreso"), sg.Button("Agregar Gasto"), sg.Button("Mostrar movimientos")],
         [sg.Button("Cerrar Programa"), sg.Button("Exportar a CSV")]
     ]
 
@@ -137,8 +137,20 @@ def main_layout():
             break
         elif event == "Agregar categoria":
             add_category_window()
-        elif event == "Agregar Movimiento":
-            add_movement_window()
+        elif event == "Agregar Ingreso":
+            income_categories = []
+            for cat in manager.categories:
+                if cat.type == "Ingreso":
+                    income_categories.append(cat)
+            add_movement_window(income_categories)
+            window["account_balance"].update(f"El balance de la cuenta es de: ₡{manager.calculate_balance()}")
+            manager.export_data()
+        elif event == "Agregar Gasto":
+            outcome_categories = []
+            for out_cat in manager.categories:
+                if out_cat.type == "Gasto":
+                    outcome_categories.append(out_cat)
+            add_movement_window(outcome_categories)
             window["account_balance"].update(f"El balance de la cuenta es de: ₡{manager.calculate_balance()}")
             manager.export_data()
         elif event == "Mostrar movimientos":
