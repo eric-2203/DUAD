@@ -1,14 +1,26 @@
-INSERT INTO Customers(Name, Phone, Address)
-    VALUES("Alice", "123-456-7890", "123 Main St");
+INSERT INTO Customers(Name, Phone)
+    VALUES("Alice", "123-456-7890");
 
-INSERT INTO Customers(Name, Phone, Address)
-    VALUES("Bob","987-654-3210", "456 Elm St");
+INSERT INTO Customers(Name, Phone)
+    VALUES("Bob","987-654-3210");
 
-INSERT INTO Customers(Name, Phone, Address)
-    VALUES("Claire", "555-123-4567", "789 Oak St");
+INSERT INTO Customers(Name, Phone)
+    VALUES("Claire", "555-123-4567");
 
-INSERT INTO Customers(Name, Phone, Address)
-    VALUES("Claire","555-123-4567", "789 Georgia St");
+INSERT INTO Customers(Name, Phone)
+    VALUES("Claire","555-123-4567");
+
+INSERT INTO Addresses(Address, customer_id)
+    VALUES("123 Main St", 1);
+
+INSERT INTO Addresses(Address, customer_id)
+    VALUES("456 Elm St", 2);
+
+INSERT INTO Addresses(Address, customer_id)
+    VALUES("789 Oak St", 3);
+
+INSERT INTO Addresses(Address, customer_id)
+    VALUES("789 Georgia St", 3);
 
 INSERT INTO Items(Name, Price)
     VALUES("Cheeseburger", "$8");
@@ -40,35 +52,20 @@ INSERT INTO Special_request(Request)
 INSERT INTO Special_request(Request)
     VALUES("No onions");
 
-INSERT INTO Delivery_times(Time)
-    VALUES("12:00 pm");
+INSERT INTO Ordenes(customer_id, address_id, item_id, Quantity, special_request_id, Delivery_Time)
+    VALUES(1, 1, 1, 2, 5, "6:00 pm");
 
-INSERT INTO Delivery_times(Time)
-    VALUES("5:00 pm");
+INSERT INTO Ordenes(customer_id, address_id, item_id, Quantity, special_request_id, Delivery_Time)
+    VALUES(1, 1, 2, 1, 2, "6:00 pm");
 
-INSERT INTO Delivery_times(Time)
-    VALUES("6:00 pm");
+INSERT INTO Ordenes(customer_id, address_id, item_id, Quantity, special_request_id, Delivery_Time)
+    VALUES(2, 2, 3, 1, 3, "7:30 pm");
 
-INSERT INTO Delivery_times(Time)
-    VALUES("7:30 pm");
+INSERT INTO Ordenes(customer_id, address_id, item_id, Quantity, special_request_id, Delivery_Time)
+    VALUES(2, 2, 2, 2, 1, "7:30 pm");
 
-INSERT INTO Delivery_times(Time)
-    VALUES("8:00 pm");
+INSERT INTO Ordenes(customer_id, address_id, item_id, Quantity, special_request_id, Delivery_Time)
+    VALUES(3, 3, 4, 1, 4, "12:00 pm");
 
-INSERT INTO Ordenes(customer_id, item_id, Quantity, special_request_id, delivery_time_id)
-    VALUES(1, 1, 2, 5, 3);
-
-INSERT INTO Ordenes(customer_id, item_id, Quantity, special_request_id, delivery_time_id)
-    VALUES(1, 2, 1, 2, 3);
-
-INSERT INTO Ordenes(customer_id, item_id, Quantity, special_request_id, delivery_time_id)
-    VALUES(2, 3, 1, 3, 4);
-
-INSERT INTO Ordenes(customer_id, item_id, Quantity, special_request_id, delivery_time_id)
-    VALUES(2, 2, 2, 1, 4);
-
-INSERT INTO Ordenes(customer_id, item_id, Quantity, special_request_id, delivery_time_id)
-    VALUES(3, 4, 1, 4, 1);
-
-INSERT INTO Ordenes(customer_id, item_id, Quantity, special_request_id, delivery_time_id)
-    VALUES(4, 5, 1, 1, 2);
+INSERT INTO Ordenes(customer_id, address_id, item_id, Quantity, special_request_id, Delivery_Time)
+    VALUES(3, 4, 5, 1, 1, "5:00 pm");

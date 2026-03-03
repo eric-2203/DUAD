@@ -1,12 +1,3 @@
-INSERT INTO VINs(VIN)
-    VALUES("1HGCM82633A");
-
-INSERT INTO VINs(VIN)
-    VALUES("5J6RM4H79EL");
-
-INSERT INTO VINs(VIN)
-    VALUES("1G1RA6H1FU");
-
 INSERT INTO Makes(Name)
     VALUES("Honda");
 
@@ -55,26 +46,26 @@ INSERT INTO Insurance_Companies(Name)
 INSERT INTO Insurance_Companies(Name)
     VALUES("GHI Insurance");
 
-INSERT INTO Policies(Name)
-    VALUES("POL12345");
+INSERT INTO Policies(Name, company_id)
+    VALUES("POL12345", 1);
 
-INSERT INTO Policies(Name)
-    VALUES("POL54321");
+INSERT INTO Policies(Name, company_id)
+    VALUES("POL54321", 2);
 
-INSERT INTO Policies(Name)
-    VALUES("POL67890");
+INSERT INTO Policies(Name, company_id)
+    VALUES("POL67890", 3);
 
-INSERT INTO Policies(Name)
-    VALUES("POL98765");
+INSERT INTO Policies(Name, company_id)
+    VALUES("POL98765", 4);
 
-INSERT INTO Automoviles(vin_id, make_id, model_id, color_id, owner_id, insurance_id, policy_id)
-    VALUES(1, 1, 1, 1, 1, 1, 1);
+INSERT INTO Automoviles(VIN, make_id, model_id, color_id, owner_id, policy_id)
+    VALUES("1HGCM82633A", 1, 1, 1, 1, 1);
 
-INSERT INTO Automoviles(vin_id, make_id, model_id, color_id, owner_id, insurance_id, policy_id)
-    VALUES(1, 1, 1, 1, 2, 2, 2);
+INSERT INTO Automoviles(VIN, make_id, model_id, color_id, owner_id, policy_id)
+    VALUES("1HGCM82633A", 1, 1, 1, 2, 2);
 
-INSERT INTO Automoviles(vin_id, make_id, model_id, color_id, owner_id, insurance_id, policy_id)
-    VALUES(2, 1, 2, 2, 3, 3, 3);
+INSERT INTO Automoviles(VIN, make_id, model_id, color_id, owner_id, policy_id)
+    VALUES("5J6RM4H79EL", 1, 2, 2, 3, 3);
 
-INSERT INTO Automoviles(vin_id, make_id, model_id, color_id, owner_id, insurance_id, policy_id)
-    VALUES(3, 2, 3, 3, 4, 4, 4);
+INSERT INTO Automoviles(VIN, make_id, model_id, color_id, owner_id, policy_id)
+    VALUES("1G1RA6H1FU", 2, 3, 3, 4, 4);

@@ -1,7 +1,3 @@
-CREATE TABLE VINs(
-    id INTEGER PRIMARY KEY,
-    VIN VARCHAR(11) NOT NULL
-);
 
 CREATE TABLE Makes(
     id INTEGER PRIMARY KEY,
@@ -27,17 +23,17 @@ CREATE TABLE Insurance_Companies(
 
 CREATE TABLE Policies(
     id INTEGER PRIMARY KEY,
-    Name VARCHAR(15) NOT NULL
+    Name VARCHAR(15) NOT NULL,
+    company_id INT REFERENCES Insurance_Companies(id)
 );
 
 CREATE TABLE Automoviles(
     id INTEGER PRIMARY KEY,
-    vin_id INT REFERENCES VINs(id),
+    VIN VARCHAR(12) NOT NULL,
     make_id INT REFERENCES Makes(id),
     model_id INT REFERENCES Models(id),
     color_id INT REFERENCES Colors(id),
     owner_id INT REFERENCES Owners(id),
-    insurance_id INT REFERENCES Insurance_Companies(id),
     policy_id INT REFERENCES Policies(id)
 );
 

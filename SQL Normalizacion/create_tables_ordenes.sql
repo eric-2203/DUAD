@@ -16,16 +16,18 @@ CREATE TABLE Special_request (
     Request VARCHAR(15) NOT NULL
 );
 
-CREATE TABLE Delivery_times (
+CREATE TABLE Addresses (
     id INTEGER PRIMARY KEY,
-    Time VARCHAR(8) NOT NULL
+    Address VARCHAR(30) NOT NULL,
+    customer_id INT REFERENCES Customer(id)
 );
 
 CREATE TABLE Ordenes (
     id INTEGER PRIMARY KEY,
     customer_id INT REFERENCES Customers(id),
+    address_id INT REFERENCES Addresses(id),
     item_id INT REFERENCES Items(id),
     Quantity INT NOT NULL,
     special_request_id INT REFERENCES Special_request(id),
-    delivery_time_id INT REFERENCES Delivery_times(id)
+    Delivery_Time VARCHAR(8) NOT NULL
 );
