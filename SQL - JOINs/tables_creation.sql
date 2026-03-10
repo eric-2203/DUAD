@@ -1,0 +1,23 @@
+CREATE TABLE Authors(
+    ID INTEGER PRIMARY KEY,
+    Name VARCHAR(25) NOT NULL
+);
+
+CREATE TABLE Books(
+    ID INTEGER PRIMARY KEY,
+    Name VARCHAR(25) NOT NULL,
+    author_id INT REFERENCES Authors(id) NOT NULL
+);
+
+CREATE TABLE Customers(
+    ID INTEGER PRIMARY KEY,
+    Name VARCHAR(15) NOT NULL,
+    Email VARCHAR(25) NOT NULL
+);
+
+CREATE TABLE Rents(
+    ID INTEGER PRIMARY KEY, 
+    book_id INT REFERENCES Books(id),
+    customer_id INT REFERENCES Customers(id),
+    State VARCHAR(8) NOT NULL
+);
