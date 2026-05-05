@@ -56,7 +56,7 @@ def register_task():
             if task["identifier"] == request.json["identifier"]:
                 raise ValueError("Este identificador de tarea ya existe. Inserta un identificador nuevo.")
 
-        tasks.append(
+        new_task = (
             {
                 "identifier": request.json["identifier"],
                 "title": request.json["title"],
@@ -65,8 +65,10 @@ def register_task():
             }
         )
 
+        tasks.append(new_task)
+
         write_file(tasks)
-        return jsonify(tasks), 201
+        return jsonify(new_task), 201
     except ValueError as ex:
         return jsonify(message=str(ex)), 400
     except Exception as ex:
@@ -97,10 +99,10 @@ def edit_task(id):
                 task["status"] = request.json["status"].lower()
                 found = True
                 break
-        if found is True:
+        if found:
             write_file(tasks)
-            return jsonify(tasks)
-        elif found == False:
+            return jsonify(task)
+        else:
             raise ValueError("El identificador de tarea no existe o enviaste un valor vacío.")
 
 
@@ -120,10 +122,10 @@ def delete_task(id):
                 tasks.remove(task)
                 found = True
                 break
-        if found is True:
+        if found:
             write_file(tasks)
-            return jsonify(tasks)
-        elif found is False:
+            return {"message": "Task deleted."}, 204
+        else:
             raise ValueError("El identificador de tarea no existe o enviaste un valor vacío.")
     
     except ValueError as ex:
