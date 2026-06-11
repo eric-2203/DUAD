@@ -5,10 +5,9 @@ from UsersRepository import UserRepository
 
 app = Flask(__name__)
 
-def main_route():
-    @app.route("/")
-    def root():
-        return "<h1>Bienvenido al API de Car Rentals</h1>"
+@app.route("/")
+def root():
+    return "<h1>Welcome to the Classics Car Rental API!</h1>"
 
 def users_routes(app, users_repo):
     @app.route("/users", methods=['POST'])
@@ -25,7 +24,7 @@ def users_routes(app, users_repo):
         if "error" in result:
             return jsonify(result), 404
         
-        return jsonify(result), 204
+        return jsonify(result), 200
     
     @app.route("/users", methods=['GET'])
     def get_users():
@@ -69,10 +68,10 @@ def users_routes(app, users_repo):
         all_users = users_repo.get_all_users()
         return jsonify(all_users), 200
     
-    @app.route("/users", methods=['PUT'])
-    def update_user_status():
+    @app.route("/users/<id>", methods=['PUT'])
+    def update_user_status(id):
         data = request.get_json()
-        result = users_repo.update_user(data["id"], data["account_status"])
+        result = users_repo.update_user(id, data["account_status"])
         if "error" in result:
             return jsonify(result), 400
         return jsonify(result)
@@ -130,6 +129,14 @@ def cars_routes(app, cars_repo):
         if "error" in results:
             return jsonify(results), 400
         return jsonify(results), 200
+    
+    @app.route("/cars/<id>", methods=['PUT'])
+    def update_car_status(id):
+        data = request.get_json()
+        result = cars_repo.update_car(id, data["status"])
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result)
 
     
     
@@ -191,18 +198,17 @@ def rentals_routes(app, rentals_repo):
             return jsonify(result), 400
         return jsonify(result), 201
     
-    @app.route("/rentals", methods=['PUT'])
-    def complete_rental():
-        data = request.get_json()
-        result = rentals_repo.car_return(data["car_id"])
+    @app.route("/rentals/<id>", methods=['PUT'])
+    def complete_rental(id):
+        result = rentals_repo.car_return(id)
         if "error" in result:
             return jsonify(result), 400
         return jsonify(result)
     
-    @app.route("/rentals", methods=['PATCH'])
-    def update_status():
+    @app.route("/rentals/<id>", methods=['PATCH'])
+    def update_status(id):
         data = request.get_json()
-        result = rentals_repo.update_rental_status(data["id"], data["rent_status"])
+        result = rentals_repo.update_rental_status(id, data["rent_status"])
         if "error" in result:
             return jsonify(result), 400
         return jsonify(result)

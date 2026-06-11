@@ -116,17 +116,56 @@ class CarRepository():
         except Exception as error:
             return {"error": str(error)}
         
-    def update_car(self, _id, status):
+    def update_car(self, _id, _status):
+        valid_status = ["available", "unavailable", "rented", "reserved"]
+        _status = _status.strip().lower()
         try:
             result = self.db_manager.execute_query(
-                "UPDATE lyfter_car_rental.cars SET status = %s WHERE id = %s RETURNING id, status",
-                (status, _id)
+            "SELECT id, status FROM lyfter_car_rental.cars WHERE id = %s;", (_id,)
             )
 
-            if result:
-                print("Car status updated successfully")
+            if not _status or _status.strip() == "":
+                return {"error": "Status is missing to update car information"}
+            if _status.lower() not in valid_status:
+                return {"error": "The status you entered is invalid. Enter a valid status"}
+            if _status == "available":
+                if result[0]["status"].lower() == "available":
+                    return {"error": "Car status is already available"}
+                available_status = self.db_manager.execute_query(
+                        "UPDATE lyfter_car_rental.cars SET status = 'available' WHERE id = %s RETURNING id, status;",
+                        (_id,)
+                    )
+                return available_status
+            
+            if _status == "unavailable":
+                if result[0]["status"].lower() == "unavailable":
+                    return {"error": "Car status is already unavailable"}
+                unavailable_status = self.db_manager.execute_query(
+                        "UPDATE lyfter_car_rental.cars SET status = 'unavailable' WHERE id = %s RETURNING id, status;",
+                        (_id,)
+                    )
+                return unavailable_status
+            
+            if _status == "rented":
+                if result[0]["status"].lower() == "rented":
+                    return {"error": "Car status is already rented"}
+                rented_status = self.db_manager.execute_query(
+                        "UPDATE lyfter_car_rental.cars SET status = 'rented' WHERE id = %s RETURNING id, status;",
+                        (_id,)
+                    )
+                return rented_status
+            
+            if _status == "reserved":
+                if result[0]["status"].lower() == "reserved":
+                    return {"error": "Car status is already reserved"}
+                reserved_status = self.db_manager.execute_query(
+                        "UPDATE lyfter_car_rental.cars SET status = 'reserved' WHERE id = %s RETURNING id, status;",
+                        (_id,)
+                    )
+                return reserved_status
+            
             else:
-                print("No car found with the ID provided")
+                return {"error": "There was an error updating this car"}
 
         except Exception as error:
             return {"error": str(error)}

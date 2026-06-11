@@ -132,7 +132,7 @@ class RentalRepository():
 
             )
             for rental in results:
-                if rental["rent_status"].lower() == "active":
+                if rental["rent_status"].lower() == "active" or rental["rent_status"].lower() == "pending":
                     self.db_manager.execute_query(
                         "UPDATE lyfter_car_rental.rentals SET rent_status = 'ended' WHERE id = %s RETURNING id;",
                         (rental["id"],)
@@ -210,6 +210,8 @@ class RentalRepository():
                         return {"error": "Rental status cannot be changed from ended to cancelled"}
                     if result[0]["rent_status"].lower() == "pending":
                         return {"error": "Rental status cannot be changed from pending to cancelled"}
+                    if result[0]["rent_status"].lower() == "active":
+                        return {"error": "Rental status cannot be changed from active to cancelled"}
                     cancelled_status = self.db_manager.execute_query(
                         "UPDATE lyfter_car_rental.rentals SET rent_status = 'cancelled' WHERE id = %s RETURNING id, rent_status;",
                         (id,)

@@ -6,7 +6,7 @@ from RentalsRepository import RentalRepository
 from flask import Flask, jsonify, request
 from API import app, users_routes, cars_routes, rentals_routes
 
-app = Flask(__name__)
+my_app = app
 
 db_manager = PgManager(
     dbname="postgres",
@@ -21,9 +21,9 @@ cars_repo = CarRepository(db_manager)
 rentals_repo = RentalRepository(db_manager)
 
 
-users_routes(app, users_repo)
-cars_routes(app, cars_repo)
-rentals_routes(app, rentals_repo)
+users_routes(my_app, users_repo)
+cars_routes(my_app, cars_repo)
+rentals_routes(my_app, rentals_repo)
 
 if __name__ == '__main__':
-    app.run(host="localhost", debug=True)
+    my_app.run(host="localhost", debug=True)

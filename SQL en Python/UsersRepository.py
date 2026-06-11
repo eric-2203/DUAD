@@ -190,10 +190,16 @@ class UserRepository():
         
     def remove_user(self, _id):
         try:
-            self.db_manager.execute_query(
-                "DELETE FROM lyfter_car_rental.users WHERE id = %s RETURNING id", (_id,)
+            result = self.db_manager.execute_query(
+            "SELECT id, account_status FROM lyfter_car_rental.users WHERE id = %s;", (_id,)
             )
-            print("User deleted successfully")
-            return {"message": "User eliminated successfully"}
+
+            if result: 
+                self.db_manager.execute_query(
+                    "DELETE FROM lyfter_car_rental.users WHERE id = %s RETURNING id", (_id,)
+                )
+                return {"message": "User eliminated successfully"}
+            else:
+                return {"error": "The user you are trying to delete does not exist in the database"}
         except Exception as error:
             return {"error": str(error)}
