@@ -170,29 +170,6 @@ class CarRepository():
         except Exception as error:
             return {"error": str(error)}
         
-    def get_all_rented_cars(self):
-        rented_cars = []
-        results = self.db_manager.execute_query(
-            "SELECT id, brand, model, manufacture_year, status FROM lyfter_car_rental.cars;"
-        )
-        for car in results:
-            if car["status"].lower() == "rented":
-                rented_cars.append(car)
-                
-        rented = [self._format_cars(result) for result in rented_cars]
-        return rented
-    
-    def get_all_available_cars(self):
-        available_cars = []
-        results = self.db_manager.execute_query(
-            "SELECT id, brand, model, manufacture_year, status FROM lyfter_car_rental.cars;"
-        )
-        for car in results:
-            if car["status"].lower() == "available":
-                available_cars.append(car)
-                
-        available = [self._format_cars(result) for result in available_cars]
-        return available
     
     def remove_from_rental(self,_id):
         try:

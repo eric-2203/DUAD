@@ -198,9 +198,9 @@ def rentals_routes(app, rentals_repo):
             return jsonify(result), 400
         return jsonify(result), 201
     
-    @app.route("/rentals/<id>", methods=['PUT'])
-    def complete_rental(id):
-        result = rentals_repo.car_return(id)
+    @app.route("/rentals/<car_id>", methods=['PUT'])
+    def complete_rental(car_id):
+        result = rentals_repo.car_return(car_id)
         if "error" in result:
             return jsonify(result), 400
         return jsonify(result)
