@@ -29,6 +29,9 @@ class UserRepository:
     
 
     def update_user(self, user_id, name, email):
+        existing_user = self.get_user_by_email(email)
+        if existing_user:
+            raise ValueError("The email you are trying to use already exists in the database")
         user = self.get_user_by_id(user_id)
         if user is  None:
             raise ValueError("The user you are trying to update does not exist in the database")

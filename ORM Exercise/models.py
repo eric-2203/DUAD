@@ -11,7 +11,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
-    addresses: Mapped[List["Address"]] = relationship(back_populates="user")
+    addresses: Mapped[List["Address"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     cars: Mapped[List["Car"]] = relationship(back_populates="user")
 
