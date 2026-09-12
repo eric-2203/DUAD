@@ -1,12 +1,18 @@
 from models import Invoice, InvoiceDetails, Fruit, User
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 class InvoiceRepository:
     def __init__(self, session):
         self.session = session
 
     def get_all_invoices(self):
-        result = self.session.execute(select(Invoice))
+        result = self.session.execute(
+            select(Invoice).options(
+                selectinload(Invoice.invoice_details)
+                .selectinload(InvoiceDetails.fruit)
+            )
+        )
         return result.scalars().all()
 
     def get_invoice_by_id(self, invoice_id):
@@ -14,7 +20,14 @@ class InvoiceRepository:
         return result
 
     def get_invoice_by_user(self, user_id):
-        result = self.session.execute(select(Invoice).where(Invoice.user_id == user_id))
+        result = self.session.execute(
+            select(Invoice)
+            .options(
+                selectinload(Invoice.invoice_details)
+                .selectinload(InvoiceDetails.fruit)
+            )
+            .where(Invoice.user_id == user_id)
+        )
         return result.scalars().all()
 
     def get_invoice_details(self, invoice_id):

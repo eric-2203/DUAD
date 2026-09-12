@@ -3,7 +3,7 @@ from functools import wraps
 from decimal import Decimal
 
 
-def requires_role(role, jwt_manager):
+def requires_authentication(jwt_manager):
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
@@ -16,6 +16,19 @@ def requires_role(role, jwt_manager):
             if decoded is None:
                 return jsonify(error="Invalid authorization token"), 401
 
+            return function(*args, decoded=decoded, **kwargs)
+        
+        return wrapper
+    
+    return decorator
+
+
+def requires_role(role, jwt_manager):
+    def decorator(function):
+        @wraps(function)
+        @requires_authentication(jwt_manager)
+        def wrapper(decoded, *args, **kwargs):
+
             user_role = decoded["role"]
 
             if user_role == role:
@@ -27,7 +40,6 @@ def requires_role(role, jwt_manager):
         return wrapper
     
     return decorator
-
 
 
 def authentication_routes(app, users_repo, jwt_manager):
@@ -81,17 +93,9 @@ def authentication_routes(app, users_repo, jwt_manager):
         return jsonify(token=token), 200
 
     @app.route('/me', methods=['GET'])
-    def me():
+    @requires_authentication(jwt_manager)
+    def me(decoded):
         try:
-            token = request.headers.get('Authorization')
-            if token is None:
-                return jsonify(error="Authorization token is missing"), 401
-
-            token = token.replace("Bearer ", "")
-            decoded = jwt_manager.decode(token)
-            if decoded is None:
-                return jsonify(error="Invalid authorization token"), 401
-
             user_id = decoded["id"]
 
             user = users_repo.get_user_by_id(user_id)
@@ -146,24 +150,16 @@ def fruits_routes(app, fruits_repo, jwt_manager):
         return jsonify(result.to_dict()), 201
 
     @app.route("/fruits", methods=['GET'])
+    @requires_role("admin", jwt_manager)
     def get_fruits():
-        fruit_id = request.args.get("id")
         fruit_name = request.args.get("name")
-
-        if fruit_id:
-            try:
-                fruit_id = int(fruit_id)
-                result = fruits_repo.get_fruit_by_id(fruit_id)
-                if result is None:
-                    return jsonify(error="Fruit does not exist"), 404
-                return jsonify(result.to_dict()), 200
-            except ValueError as error:
-                return jsonify(error=str(error)), 400
 
         if fruit_name:
             fruit_name = fruit_name.strip().lower()
             try:
                 fruit_result = fruits_repo.get_fruit_by_name(fruit_name)
+                if fruit_result is None:
+                    return jsonify(error="Fruit does not exist"), 404
                 return jsonify(fruit_result.to_dict()), 200
             except ValueError as error:
                 return jsonify(error=str(error)), 400
@@ -175,16 +171,38 @@ def fruits_routes(app, fruits_repo, jwt_manager):
             all_fruits.append(fruit.to_dict())
         return jsonify(all_fruits), 200
 
+    @app.route("/fruits/<id>", methods=['GET'])
+    @requires_role("admin", jwt_manager)
+    def get_fruit_by_id(id):
+        try: 
+            fruit_id = int(id)
+
+        except ValueError:
+            return jsonify(error="Invalid fruit ID"), 400
+
+        
+        result = fruits_repo.get_fruit_by_id(fruit_id)
+
+        if result is None:
+            return jsonify(error="Fruit does not exist"), 404
+            
+        return jsonify(result.to_dict()), 200
+
 
     @app.route("/fruits/<id>", methods=['DELETE'])
     @requires_role("admin", jwt_manager)
     def delete_fruit(id):
         try: 
             fruit_id = int(id)
+
+        except ValueError:
+            return jsonify(error="Invalid fruit ID"), 400
+
+        try:
             result = fruits_repo.delete_fruit(fruit_id)
 
         except ValueError as error:
-            return jsonify(error=str(error)), 400
+            return jsonify(error=str(error)), 404
             
         return jsonify(result.to_dict()), 200
 
@@ -208,10 +226,15 @@ def fruits_routes(app, fruits_repo, jwt_manager):
 
         try: 
             fruit_id = int(id)
+
+        except ValueError:
+            return jsonify(error="Invalid fruit ID"), 400
+
+        try:
             result = fruits_repo.update_fruit(fruit_id, name, price)
 
         except ValueError as error:
-            return jsonify(error=str(error)), 400
+            return jsonify(error=str(error)), 404
         
         return jsonify(result.to_dict()), 200
 
@@ -242,15 +265,8 @@ def fruits_routes(app, fruits_repo, jwt_manager):
 
 def purchase_routes(app, invoices_repo, jwt_manager):
     @app.route("/purchase", methods=['POST'])
-    def make_purchase():
-        token = request.headers.get('Authorization')
-        if token is None:
-            return jsonify(error="Authorization token is missing"), 401
-
-        token = token.replace("Bearer ", "")
-        decoded = jwt_manager.decode(token)
-        if decoded is None:
-            return jsonify(error="Invalid authorization token"), 401
+    @requires_authentication(jwt_manager)
+    def make_purchase(decoded):
 
         user_id = decoded["id"]
 
@@ -298,20 +314,13 @@ def purchase_routes(app, invoices_repo, jwt_manager):
         except ValueError as error:
             return jsonify(error=str(error)), 400
 
-        return jsonify(invoice.to_dict()), 200
+        return jsonify(invoice.to_dict()), 201
 
 
 def invoices_routes(app, invoices_repo, jwt_manager):
     @app.route("/invoices", methods=['GET'])
-    def get_invoices():
-        token = request.headers.get('Authorization')
-        if token is None:
-            return jsonify(error="Authorization token is missing"), 401
-
-        token = token.replace("Bearer ", "")
-        decoded = jwt_manager.decode(token)
-        if decoded is None:
-            return jsonify(error="Invalid authorization token"), 401
+    @requires_authentication(jwt_manager)
+    def get_invoices(decoded):
 
         user_id = decoded["id"]
         user_role = decoded["role"]
@@ -323,7 +332,7 @@ def invoices_routes(app, invoices_repo, jwt_manager):
             for invoice in invoices:
                 invoice_data = invoice.to_dict()
 
-                details = invoices_repo.get_invoice_details(invoice.id)
+                details = invoice.invoice_details
 
                 invoice_data["details"] = []
 
@@ -341,7 +350,7 @@ def invoices_routes(app, invoices_repo, jwt_manager):
             for invoice in user_invoices:
                 invoice_data = invoice.to_dict()
 
-                details = invoices_repo.get_invoice_details(invoice.id)
+                details = invoice.invoice_details
 
                 invoice_data["details"] = []
 
@@ -351,3 +360,33 @@ def invoices_routes(app, invoices_repo, jwt_manager):
                 all_user_invoices.append(invoice_data)
 
             return jsonify(all_user_invoices), 200
+
+        else:
+            return jsonify(error="User role is not allowed"), 403
+
+    @app.route("/invoices/user/<user_id>", methods=['GET'])
+    @requires_role("admin", jwt_manager)
+    def get_invoice_by_user_id(user_id):
+        try: 
+            user_id = int(user_id)
+
+        except ValueError:
+            return jsonify(error="Invalid user ID"), 400
+
+        result = invoices_repo.get_invoice_by_user(user_id)
+
+        all_invoices = []
+
+        for invoice in result:
+            invoice_data = invoice.to_dict()
+
+            details = invoice.invoice_details
+
+            invoice_data["details"] = []
+
+            for detail in details:
+                invoice_data["details"].append(detail.to_dict())
+
+            all_invoices.append(invoice_data)
+
+        return jsonify(all_invoices), 200
