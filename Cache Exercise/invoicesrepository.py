@@ -70,20 +70,25 @@ class InvoiceRepository:
 
         total = sum(subtotals)
 
-        invoice = Invoice(user_id=user_id, total=total)
-        self.session.add(invoice)
-        self.session.flush()
+        try: 
+            invoice = Invoice(user_id=user_id, total=total)
+            self.session.add(invoice)
+            self.session.flush()
 
-        for item in invoice_items:
-            invoice_details = InvoiceDetails(invoice_id=invoice.id, fruit_id=item["fruit_id"], sold_quantity=item["quantity"], unit_price=item["unit_price"]
-    )
+            for item in invoice_items:
+                invoice_details = InvoiceDetails(invoice_id=invoice.id, fruit_id=item["fruit_id"], sold_quantity=item["quantity"], unit_price=item["unit_price"]
+        )
 
-            self.session.add(invoice_details)
+                self.session.add(invoice_details)
 
-        for item in invoice_items:
-            fruit = self.session.get(Fruit, item["fruit_id"])
-            fruit.stock_quantity -= item["quantity"]
+            for item in invoice_items:
+                fruit = self.session.get(Fruit, item["fruit_id"])
+                fruit.stock_quantity -= item["quantity"]
 
-        self.session.commit()
+            self.session.commit()
+
+        except Exception:
+            self.session.rollback()
+            raise
 
         return invoice

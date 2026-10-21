@@ -1,6 +1,11 @@
 from models import Fruit
 from sqlalchemy import select
 
+class FruitAlreadyExistsError(Exception):
+    pass
+
+class FruitLinkedToInvoicesError(Exception):
+    pass
 class FruitRepository():
     def __init__(self, session):
         self.session = session
@@ -34,7 +39,7 @@ class FruitRepository():
         
         fruit = self.get_fruit_by_name(fruit_name)
         if fruit is not None and fruit.id != fruit_id:
-            raise ValueError("This fruit already exists")
+            raise FruitAlreadyExistsError("This fruit already exists")
         
         existing_fruit.name = fruit_name
         existing_fruit.price = fruit_price

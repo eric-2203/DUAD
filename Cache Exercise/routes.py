@@ -1,7 +1,8 @@
 from flask import jsonify, request, Response
 from functools import wraps
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
+from fruitsrepository import FruitAlreadyExistsError, FruitLinkedToInvoicesError
 
 
 def requires_authentication(jwt_manager):
@@ -115,10 +116,18 @@ def authentication_routes(app, users_repo, jwt_manager):
 
 
 def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
+    def format_fruit(fruit):
+        formatted_fruit = fruit.to_dict()
+        formatted_fruit["price"] = float(formatted_fruit["price"])
+        return formatted_fruit
+
     @app.route("/fruits", methods=['POST'])
     @requires_role("admin", jwt_manager)
     def add_fruit():
         data = request.get_json()
+        if not isinstance(data, dict):
+            return jsonify(error="Request body must be a JSON object"), 400
+        
         name = data.get("name")
         price = data.get("price")
         stock_quantity = data.get("stock_quantity")
@@ -126,13 +135,28 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
         if not name:
             return jsonify(error="Fruit name is missing"), 400
 
+        if not isinstance(name, str):
+            return jsonify(error="Fruit name must be a string"), 400
+
         name = name.strip().lower()
 
         if price is None:
             return jsonify(error="Price is missing"), 400
 
+        if isinstance(price, bool):
+            return jsonify(error="Price cannot be a boolean"), 400
+
         if stock_quantity is None:
             return jsonify(error="Stock quantity is missing"), 400
+
+        if isinstance(stock_quantity, bool):
+            return jsonify(error="Stock quantity cannot be a boolean"), 400
+        
+        if isinstance(stock_quantity, float):
+            return jsonify(error="Stock quantity cannot have decimals"), 400
+
+        if isinstance(stock_quantity, str):
+            return jsonify(error="Stock quantity cannot be a string"), 400
 
         try:
             price = Decimal(price)
@@ -145,10 +169,14 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
                 return jsonify(error="Stock quantity cannot be negative"), 400
             
             result = fruits_repo.add_fruit(name, price, stock_quantity)
-        except ValueError as error:
+            formatted_fruit = format_fruit(result)
+        except (ValueError, InvalidOperation, TypeError) as error:
             return jsonify(error=str(error)), 400
 
-        return jsonify(result.to_dict()), 201
+        cache_fruits = "fruits:all"
+        cache_manager.delete_data(cache_fruits)
+
+        return jsonify(formatted_fruit), 201
 
     @app.route("/fruits", methods=['GET'])
     @requires_role("admin", jwt_manager)
@@ -169,39 +197,37 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
 
                     if fruit_result is None:
                         return jsonify(error="Fruit does not exist"), 404
-                    
-                    formatted_fruit = fruit_result.to_dict()
-                    formatted_fruit["price"] = float(formatted_fruit["price"])
-                    formatted_fruit = json.dumps(formatted_fruit)
-                    cache_manager.store_data(cache_key, formatted_fruit)
 
-                    return jsonify(fruit_result.to_dict()), 200
+                    formatted_fruit = format_fruit(fruit_result)
+                    fruit_json = json.dumps(formatted_fruit)
+                    cache_manager.store_data(cache_key, fruit_json)
+
+                    return jsonify(formatted_fruit), 200
                 
             except ValueError as error:
                 return jsonify(error=str(error)), 400
 
-        fruits = fruits_repo.get_all_fruits()
-
         all_fruits = []
-
-        for fruit in fruits:
-            fruit_id = fruit.id
-            fruit_information = fruit.to_dict()
-            
-            
-            cache_key = f"fruit:{fruit_id}"
-            cached_fruit = cache_manager.get_data(cache_key)
-            if cached_fruit:
-                existing_fruit = json.loads(cached_fruit)
-                all_fruits.append(existing_fruit)
+        try:
+            cache_key = "fruits:all"
+            cached_fruits = cache_manager.get_data(cache_key)
+            if cached_fruits:
+                existing_fruits = json.loads(cached_fruits)
+                return jsonify(existing_fruits), 200
             else:
-                fruit_information["price"] = float(fruit_information["price"])
-                all_fruits.append(fruit_information)
-                fruit_information = json.dumps(fruit_information)
-                cache_manager.store_data(cache_key, fruit_information)
+                fruits = fruits_repo.get_all_fruits()
+                for fruit in fruits:
+                    fruit_details = format_fruit(fruit)
+                    all_fruits.append(fruit_details)
 
+                fruits_json = json.dumps(all_fruits)
+                cache_manager.store_data(cache_key, fruits_json)
 
-        return jsonify(all_fruits), 200
+                return jsonify(all_fruits), 200
+
+        except ValueError as error:
+            return jsonify(error=str(error)), 400
+
 
     @app.route("/fruits/<id>", methods=['GET'])
     @requires_role("admin", jwt_manager)
@@ -224,12 +250,11 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
             if result is None:
                 return jsonify(error="Fruit does not exist"), 404
 
-            formatted_fruit = result.to_dict()
-            formatted_fruit["price"] = float(formatted_fruit["price"])
-            formatted_fruit = json.dumps(formatted_fruit)
-            cache_manager.store_data(cache_key, formatted_fruit)
+            formatted_fruit = format_fruit(result)
+            fruit_json = json.dumps(formatted_fruit)
+            cache_manager.store_data(cache_key, fruit_json)
                 
-            return jsonify(result.to_dict()), 200
+            return jsonify(formatted_fruit), 200
 
 
     @app.route("/fruits/<id>", methods=['DELETE'])
@@ -251,13 +276,17 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
         try:
             result = fruits_repo.delete_fruit(fruit_id)
 
+        except FruitLinkedToInvoicesError as error:
+            return jsonify(error=str(error)), 409
         except ValueError as error:
             return jsonify(error=str(error)), 404
 
         cache_key = f"fruit:{fruit_id}"
         cache_name = f"fruit:{old_name}"
+        cache_fruits = "fruits:all"
         cache_manager.delete_data(cache_key)
         cache_manager.delete_data(cache_name)
+        cache_manager.delete_data(cache_fruits)
             
         return jsonify(result.to_dict()), 200
 
@@ -265,19 +294,34 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
     @requires_role("admin", jwt_manager)
     def update_fruit(id):
         data = request.get_json()
+        if not isinstance(data, dict):
+            return jsonify(error="Request body must be a JSON object"), 400
+        
         name = data.get("name")
         price = data.get("price")
 
         if not name:
             return jsonify(error="Fruit name is missing"), 400
 
+        if not isinstance(name, str):
+            return jsonify(error="Fruit name must be a string"), 400
+
         name = name.strip().lower()
 
         if price is None:
             return jsonify(error="Price is missing"), 400
 
-        if price <= 0:
-            return jsonify(error="Price should be greater than zero"), 400
+        if isinstance(price, bool):
+            return jsonify(error="Price cannot be a boolean"), 400
+
+        try:
+            price = Decimal(price)
+
+            if price <= 0:
+                return jsonify(error="Price should be greater than zero"), 400
+            
+        except (ValueError, InvalidOperation, TypeError) as error:
+            return jsonify(error=str(error)), 400
 
         try:
             fruit_id = int(id)
@@ -293,16 +337,25 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
 
         try:
             result = fruits_repo.update_fruit(fruit_id, name, price)
+            new_name = result.name.strip().lower()
+            formatted_fruit = format_fruit(result)
+
+        except FruitAlreadyExistsError as error:
+            return jsonify(error=str(error)), 409
 
         except ValueError as error:
             return jsonify(error=str(error)), 404
 
         cache_key = f"fruit:{fruit_id}"
         cache_name = f"fruit:{old_name}"
+        cache_new_name = f"fruit:{new_name}"
+        cache_fruits = "fruits:all"
         cache_manager.delete_data(cache_key)
         cache_manager.delete_data(cache_name)
+        cache_manager.delete_data(cache_fruits)
+        cache_manager.delete_data(cache_new_name)
         
-        return jsonify(result.to_dict()), 200
+        return jsonify(formatted_fruit), 200
 
 
     @app.route("/fruits/<id>/stock", methods=['POST'])
@@ -345,8 +398,10 @@ def fruits_routes(app, fruits_repo, jwt_manager, cache_manager):
 
         cache_key = f"fruit:{fruit_id}"
         cache_name = f"fruit:{old_name}"
+        cache_fruits = "fruits:all"
         cache_manager.delete_data(cache_key)
         cache_manager.delete_data(cache_name)
+        cache_manager.delete_data(cache_fruits)
         
         return jsonify(result.to_dict()), 200
 
@@ -419,6 +474,9 @@ def purchase_routes(app, invoices_repo, jwt_manager, cache_manager, fruits_repo)
 
             if fruit_name is not None:
                 cache_manager.delete_data(f"fruit:{fruit_name}")
+
+        cache_fruits = "fruits:all"
+        cache_manager.delete_data(cache_fruits)
 
         return jsonify(invoice.to_dict()), 201
 
