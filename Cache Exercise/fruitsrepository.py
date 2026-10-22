@@ -83,7 +83,7 @@ class FruitRepository():
             raise ValueError("The fruit you are trying to delete does not exist in the database")
 
         if fruit.invoice_details:
-            raise ValueError("This fruit cannot be deleted as it is linked to invoices")
+            raise FruitLinkedToInvoicesError("This fruit cannot be deleted as it is linked to invoices")
         
         self.session.delete(fruit)
         self.session.commit()
